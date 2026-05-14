@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Management System</title>
+    <style>
+        /* Essential styles for the UI */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; margin: 0; }
+        header { background-color: #1f2937; color: white; padding: 15px 30px; display: flex; justify-content: space-between; }
+        main { max-width: 1000px; margin: 30px auto; }
+        .card { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn { padding: 10px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 10px;}
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        .status-Pending { background-color: #fef08a; padding: 4px 8px; border-radius: 4px; }
+        .status-Approved { background-color: #dcfce7; padding: 4px 8px; border-radius: 4px; }
+        .form-group { margin-bottom: 15px; } .form-group input, .form-group select { width: 95%; padding: 8px; }
+        .alert { padding: 10px; margin-bottom: 20px; border-radius: 4px; color: white; }
+        .alert-success { background-color: #166534; }
+        .alert-error { background-color: #991b1b; }
+    </style>
+</head>
+<body>
+<header>
+    <h2>Leave Management System</h2> <span>👤 John Doe</span>
+</header>
+
+<main>
+    <!-- Java Spring Boot Flash Messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>📊 YOUR LEAVE BALANCES</h3>
+            <p>Annual Leave: <strong th:text="${balances['Annual']} + ' Days Left'"></strong></p>
+            <p>Sick Leave: <strong th:text="${balances['Sick']} + ' Days Left'"></strong></p>
+            <p>Family Leave: <strong th:text="${balances['Family']} + ' Days Left'"></strong></p>
+        </div>
+        <div class="card">
+            <h3>⚡ QUICK ACTIONS</h3>
+            <form action="/apply" method="POST">
+                <div class="form-group">
+                    <label>Leave Type</label>
+                    <select name="leaveType" required>
+                        <option value="Annual">Annual Leave</option>
+                        <option value="Sick">Sick Leave</option>
+                        <option value="Family">Family Leave</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="date" name="startDate" required> to <input type="date" name="endDate" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" name="leaveDays" placeholder="Number of Days" required>
+                </div>
+                <button type="submit" class="btn">+ SUBMIT LEAVE APPLICATION</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>🕒 LEAVE HISTORY & STATUS</h3>
+        <table>
+            <tr><th>Date</th><th>Start</th><th>End</th><th>Type</th><th>Days</th><th>Status</th><th>Manager Action</th></tr>
+            <!-- Java Loop over History Database -->
+            <tr th:each="req : ${history}">
+                <td th:text="${req.submitDate}"></td>
+                <td th:text="${req.start}"></td>
+                <td th:text="${req.end}"></td>
+                <td th:text="${req.type}"></td>
+                <td th:text="${req.days}"></td>
+                <td><span th:class="'status-' + ${req.status}" th:text="${req.status}"></span></td>
+                <td>
+                    <a th:if="${req.status == 'Pending'}" th:href="@{/approve/{id}(id=${req.id})}" style="color: blue;">[Approve]</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</main>
+</body>
+</html>
